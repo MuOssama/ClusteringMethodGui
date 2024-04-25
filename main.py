@@ -11,6 +11,7 @@ next_button = None  # Define next_button as a global variable
 
 class ToggleTable(tk.Frame):
     def __init__(self, parent, title, rows, columns):
+        global new_output
         tk.Frame.__init__(self, parent)
 
         self.rows = rows
@@ -26,9 +27,10 @@ class ToggleTable(tk.Frame):
         for i in range(rows):
             label = tk.Label(self, text=str(i + 1), borderwidth=1, relief="solid", width=3, height=1)
             label.grid(row=i + 1, column=0)
+        outputTrimmed = trimmed_output = [row[1:] for row in new_output[1:]]
 
         # Create the rest of the table with toggling labels
-        self.cells = [[0 for _ in range(columns)] for _ in range(rows)]
+        self.cells = outputTrimmed
         self.labels = [[None for _ in range(columns)] for _ in range(rows)]
         for i in range(rows):
             for j in range(columns):
@@ -52,7 +54,8 @@ class ToggleTable(tk.Frame):
     def get_table(self):
         global table
         global update
-        table_data = [[''] + [chr(ord('A') + j) for j in range(self.columns)]]
+        global new_output
+        table_data = new_output
         for i in range(self.rows):
             row_data = [str(i + 1)] + [str(self.cells[i][j]) for j in range(self.columns)]
             table_data.append(row_data)
@@ -299,10 +302,9 @@ def secondHor():
 ************************
 """
 root = tk.Tk()
-root.title("Tkinter Table")
+root.title("Clustering")
 root.geometry("1280x800")
 root.resizable(False, False)  # Disable resizing
-messagebox.showinfo("Help", "Fill the table, then click update.\n the next button shows you the answer steps")
 
 # Load the background image
 image = Image.open("bg.jpg")
@@ -313,6 +315,43 @@ background_label = tk.Label(root, image=background_image)
 background_label.place(x=0, y=0)
 
 root.title("Cluster")
+# Open the file in read mode
+# Open the file in read mode
+with open("Operations.txt", "r") as file:
+    # Read all lines into a list of lists
+    lines = [list(dict.fromkeys(line.strip().split()[2:])) for line in file]
+    print(lines)
+    machines = ["turning", "turningTaper", "turningThreading", "turningBoring", "turningGrooving", "slabMilling", "FaceMilling", "Drill"]
+    X_arrays = lines
+
+    Y_arrays = []
+
+    for X in X_arrays:
+        Y_arrays = [[0] * 8 for _ in range(8)]  # Initialize an 8x8 array with zeros
+
+    for itr, X in enumerate(X_arrays):
+        z = [0] * len(machines)
+
+        for i, machine in enumerate(machines):
+            if machine in X:
+                z[i] = 1
+        Y_arrays[itr] = z
+    output = Y_arrays
+    for i in output:
+        print(i)
+    # Create a new 9x9 array with empty strings
+    new_output = [[''] * 9 for _ in range(9)]
+
+    # Set the first row and column labels
+    new_output[0] = ['', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+    for i in range(1, 9):
+        new_output[i][0] = str(i)
+
+    # Copy values from the original array to the new array
+    for i in range(8):
+        for j in range(8):
+            new_output[i+1][j+1] = output[i][j]
+
 
 # Set the icon for the window
 root.iconbitmap("icon.ico")
